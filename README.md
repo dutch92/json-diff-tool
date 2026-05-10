@@ -1,73 +1,68 @@
-# React + TypeScript + Vite
+# JSON Diff Tool
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+JSON Diff Tool is a small browser app for comparing two JSON documents side by side.
+It renders JSON as a collapsible tree, highlights changed values, and lets you move
+through every difference without editing the source data.
 
-Currently, two official plugins are available:
+Live demo: https://dutch92.github.io/json-diff-tool/
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- Compare two JSON objects and arrays recursively.
+- Highlight added, removed, and changed values directly inside the JSON tree.
+- Collapse and expand objects and arrays.
+- Show item count for collapsed arrays.
+- Navigate between differences with a floating previous/next control.
+- Upload JSON files for the left and right side.
+- Format valid JSON with stable key ordering.
+- Swap left and right JSON documents.
+- Reset to built-in sample data.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Tech Stack
 
-## Expanding the ESLint configuration
+- React
+- TypeScript
+- Vite
+- GitHub Pages
+- GitHub Actions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Local Development
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Use Node.js 22 or newer.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Run checks:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run lint
+npm run build
 ```
+
+## Project Structure
+
+```text
+src/
+  components/
+    DiffNavigator/   floating diff navigation
+    JsonViewer/      read-only collapsible JSON tree
+    SummaryPanel/    compact app header
+    ui/              local UI primitives
+  lib/json/          JSON parsing, formatting, diffing, highlighting
+```
+
+## Deployment
+
+The app is deployed to GitHub Pages from the `main` branch.
+
+Deployment is handled by `.github/workflows/deploy-pages.yml`:
+
+1. Install dependencies with `npm ci`.
+2. Build the app with `npm run build`.
+3. Upload `dist`.
+4. Publish through GitHub Pages.
+
+The Vite `base` option is set to `/json-diff-tool/` for the project page URL.
