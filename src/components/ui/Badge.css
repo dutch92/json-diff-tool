@@ -1,0 +1,23 @@
+.ui-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.88rem;
+}
+
+.ui-badge-added {
+  background: rgba(30, 132, 73, 0.1);
+  color: var(--success);
+}
+
+.ui-badge-removed {
+  background: rgba(186, 61, 56, 0.1);
+  color: var(--danger);
+}
+
+.ui-badge-changed {
+  background: rgba(197, 107, 0, 0.12);
+  color: var(--warning);
+}
