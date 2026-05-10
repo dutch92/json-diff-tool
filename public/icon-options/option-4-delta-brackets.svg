@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Delta JSON brackets icon</title>
+  <rect width="64" height="64" rx="14" fill="#f6efe5"/>
+  <path d="M19 18 11 32l8 14M45 18l8 14-8 14" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 18 19 46h26L32 18Z" fill="#fffaf1" stroke="#1f1a17" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M32 29v9" stroke="#c56b00" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="32" cy="43" r="2.2" fill="#c56b00"/>
+</svg>

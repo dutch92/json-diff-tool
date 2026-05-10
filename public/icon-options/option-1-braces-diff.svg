@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">JSON diff braces icon</title>
+  <rect width="64" height="64" rx="14" fill="#fffaf1"/>
+  <path d="M22 16c-5 0-7 3-7 8v3c0 3-1.7 5-4.5 5 2.8 0 4.5 2 4.5 5v3c0 5 2 8 7 8" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round"/>
+  <path d="M42 16c5 0 7 3 7 8v3c0 3 1.7 5 4.5 5-2.8 0-4.5 2-4.5 5v3c0 5-2 8-7 8" fill="none" stroke="#0f766e" stroke-width="4" stroke-linecap="round"/>
+  <path d="M28 24h12M28 32h8M28 40h12" fill="none" stroke="#1f1a17" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="44" cy="22" r="4" fill="#1e8449"/>
+  <circle cx="20" cy="42" r="4" fill="#ba3d38"/>
+</svg>

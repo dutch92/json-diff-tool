@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Diff navigator icon</title>
+  <rect width="64" height="64" rx="14" fill="#fffaf1"/>
+  <path d="M18 18h21M18 32h28M18 46h21" stroke="#1f1a17" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="45" cy="18" r="5" fill="#1e8449"/>
+  <circle cx="52" cy="32" r="5" fill="#c56b00"/>
+  <circle cx="45" cy="46" r="5" fill="#ba3d38"/>
+  <path d="M11 24 7 20l4-4M7 20h10M53 40l4 4-4 4M47 44h10" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
