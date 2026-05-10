@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dutch92.github.io/json-diff-tool/sitemap.xml
