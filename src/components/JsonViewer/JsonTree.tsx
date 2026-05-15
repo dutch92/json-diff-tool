@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { getDiffMarker } from '../../lib/json/diffMarkers'
 import type { DiffKind, JsonValue } from '../../lib/json/types'
 
 type JsonTreeProps = {
@@ -115,6 +116,7 @@ function JsonNode({
   const nodeRef = useRef<HTMLDivElement>(null)
   const diffStatus = diffStatuses.get(path)
   const statusClass = diffStatus ? ` json-node-${diffStatus}` : ''
+  const marker = diffStatus ? getDiffMarker(diffStatus) : null
   const isActive = activePath === path && Boolean(diffStatus)
   const activeClass = isActive ? ' json-node-active' : ''
   const isArray = Array.isArray(value)
@@ -137,6 +139,11 @@ function JsonNode({
   if (!isContainer) {
     return (
       <div ref={nodeRef} className={`json-node${statusClass}${activeClass}`}>
+        {marker ? (
+          <span className="json-node__marker" aria-label={marker.label}>
+            {marker.symbol}
+          </span>
+        ) : null}
         {label ? <span className="json-key">{JSON.stringify(label)}: </span> : null}
         <span className={getValueClassName(value)}>{formatPrimitive(value)}</span>
       </div>
@@ -153,6 +160,11 @@ function JsonNode({
 
   return (
     <div ref={nodeRef} className={`json-node${statusClass}${activeClass}`}>
+      {marker ? (
+        <span className="json-node__marker" aria-label={marker.label}>
+          {marker.symbol}
+        </span>
+      ) : null}
       <button
         className="json-node__toggle"
         type="button"

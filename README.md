@@ -39,16 +39,20 @@ npm run dev
 Run checks:
 
 ```bash
+npm test
 npm run lint
 npm run build
 ```
+
+Manual browser checks target desktop layouts only. Verify screens from `1024px`
+wide and up; mobile/narrow viewport verification is intentionally out of scope.
 
 ## Project Structure
 
 ```text
 src/
   components/
-    DiffNavigator/   floating diff navigation
+    DiffNavigator/   diff navigation
     JsonViewer/      JSON tree plus edit and input surface
     SummaryPanel/    compact app header
     ui/              local UI primitives

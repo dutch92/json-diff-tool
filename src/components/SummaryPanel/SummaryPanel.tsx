@@ -47,10 +47,10 @@ export function SummaryPanel<ThemeValue extends string>({
       </div>
 
       <div className="summary-panel__legend" aria-label="Легенда отличий">
-        <span><i className="summary-panel__swatch is-added" />Добавлено</span>
-        <span><i className="summary-panel__swatch is-removed" />Удалено</span>
-        <span><i className="summary-panel__swatch is-changed" />Изменено</span>
-        <span><i className="summary-panel__swatch is-active" />Текущее</span>
+        <span><i className="summary-panel__marker is-added">+</i>Добавлено</span>
+        <span><i className="summary-panel__marker is-removed">-</i>Удалено</span>
+        <span><i className="summary-panel__marker is-changed">~</i>Изменено</span>
+        <span><i className="summary-panel__marker is-active">◎</i>Текущее</span>
       </div>
 
       <div className="theme-switcher">
