@@ -2,20 +2,16 @@
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 28px;
+  border-radius: var(--radius-panel);
   background: var(--panel);
   box-shadow: var(--shadow);
 }
 
 .ui-panel-soft {
-  border-radius: 24px;
   background: var(--panel-soft);
-  box-shadow: none;
+  box-shadow: var(--surface-shadow);
 }
 
 .ui-panel-hero {
-  background:
-    radial-gradient(circle at top left, rgba(233, 133, 39, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(17, 110, 124, 0.15), transparent 28%),
-    var(--panel);
+  background: var(--panel);
 }
