@@ -4,9 +4,7 @@ import { SummaryPanel } from './components/SummaryPanel/SummaryPanel'
 import { Button } from './components/ui/Button'
 import { diffJson } from './lib/json/diff'
 import { buildDiffStatusMap } from './lib/json/diffStatus'
-import { leftExample, rightExample } from './lib/json/examples'
 import { formatJson, parseInput } from './lib/json/format'
-import { shouldConfirmExampleReset } from './lib/json/userMessages'
 import './App.css'
 
 type JsonSideState = {
@@ -57,11 +55,11 @@ function App() {
   }, [theme])
 
   const [leftJson, setLeftJson] = useState<JsonSideState>({
-    text: formatJson(leftExample),
+    text: '',
     version: 0,
   })
   const [rightJson, setRightJson] = useState<JsonSideState>({
-    text: formatJson(rightExample),
+    text: '',
     version: 0,
   })
   const leftText = leftJson.text
@@ -124,37 +122,9 @@ function App() {
       />
 
       <section className="workspace-panel">
-        <div className="workspace-panel__toolbar">
-          <Button
-            onClick={() => {
-              setLeftJson((current) => ({ text: rightText, version: current.version + 1 }))
-              setRightJson((current) => ({ text: leftText, version: current.version + 1 }))
-            }}
-          >
-            Поменять местами
-          </Button>
-          <Button
-            onClick={() => {
-              const shouldConfirm = shouldConfirmExampleReset(leftJson.version, rightJson.version)
-
-              if (
-                shouldConfirm &&
-                !window.confirm('Сбросить оба JSON к примеру? Текущий ввод будет заменен.')
-              ) {
-                return
-              }
-
-              setLeftText(formatJson(leftExample))
-              setRightText(formatJson(rightExample))
-            }}
-          >
-            Сбросить к примеру
-          </Button>
-        </div>
-
         <div className="workspace-panel__viewers">
           <JsonViewer
-            kicker="Левый JSON"
+            label="Левый JSON"
             text={leftText}
             inputVersion={leftJson.version}
             diffStatuses={leftDiffStatuses}
@@ -165,8 +135,21 @@ function App() {
             onLoadSelectedFile={(file) => readJsonFile(file, setLeftText)}
           />
 
+          <Button
+            className="workspace-panel__swap"
+            aria-label="Поменять JSON местами"
+            onClick={() => {
+              setLeftJson((current) => ({ text: rightText, version: current.version + 1 }))
+              setRightJson((current) => ({ text: leftText, version: current.version + 1 }))
+            }}
+          >
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M5 6h10m0 0-3-3m3 3-3 3M15 14H5m0 0 3-3m-3 3 3 3" />
+            </svg>
+          </Button>
+
           <JsonViewer
-            kicker="Правый JSON"
+            label="Правый JSON"
             text={rightText}
             inputVersion={rightJson.version}
             diffStatuses={rightDiffStatuses}
