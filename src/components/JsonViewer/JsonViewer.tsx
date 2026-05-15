@@ -5,8 +5,10 @@ import {
   type ClipboardEvent,
   type DragEvent,
 } from 'react'
+import { updateJsonValueAtPath } from '../../lib/json/editValue'
+import { formatJson } from '../../lib/json/format'
 import { highlightJsonText } from '../../lib/json/highlight'
-import type { DiffKind, ParseResult } from '../../lib/json/types'
+import type { DiffKind, JsonValue, ParseResult } from '../../lib/json/types'
 import { Button, FileButton } from '../ui/Button'
 import { Panel } from '../ui/Panel'
 import { formatJsonParseError } from '../../lib/json/userMessages'
@@ -51,6 +53,14 @@ export function JsonViewer({
   const handleTextChange = (value: string) => {
     setFileError(null)
     onChangeText(value)
+  }
+
+  const handleTreeValueChange = (path: string, value: JsonValue) => {
+    if (!parsed.isValid) {
+      return
+    }
+
+    handleTextChange(formatJson(updateJsonValueAtPath(parsed.value, path, value)))
   }
 
   const handleSurfacePaste = (event: ClipboardEvent<HTMLDivElement>) => {
@@ -176,6 +186,7 @@ export function JsonViewer({
             value={parsed.value}
             diffStatuses={diffStatuses}
             activePath={activePath}
+            onChangeValue={handleTreeValueChange}
           />
         ) : (
           <pre

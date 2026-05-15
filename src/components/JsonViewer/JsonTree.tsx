@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { getDiffMarker } from '../../lib/json/diffMarkers'
+import { parseJsonLiteral } from '../../lib/json/editValue'
 import type { DiffKind, JsonValue } from '../../lib/json/types'
 
 type JsonTreeProps = {
   value: JsonValue
   diffStatuses: Map<string, DiffKind>
   activePath?: string
+  onChangeValue: (path: string, value: JsonValue) => void
 }
 
 type JsonNodeProps = {
@@ -16,6 +18,7 @@ type JsonNodeProps = {
   activePath?: string
   collapsedPaths: Set<string>
   expandedPaths: Set<string>
+  onChangeValue: (path: string, value: JsonValue) => void
   onTogglePath: (path: string) => void
 }
 
@@ -111,9 +114,11 @@ function JsonNode({
   activePath,
   collapsedPaths,
   expandedPaths,
+  onChangeValue,
   onTogglePath,
 }: JsonNodeProps) {
   const nodeRef = useRef<HTMLDivElement>(null)
+  const editInputRef = useRef<HTMLInputElement>(null)
   const diffStatus = diffStatuses.get(path)
   const statusClass = diffStatus ? ` json-node-${diffStatus}` : ''
   const marker = diffStatus ? getDiffMarker(diffStatus) : null
@@ -123,6 +128,9 @@ function JsonNode({
   const isObject = typeof value === 'object' && value !== null && !isArray
   const isContainer = isArray || isObject
   const isCollapsed = collapsedPaths.has(path) && !expandedPaths.has(path)
+  const [draftValue, setDraftValue] = useState('')
+  const [editError, setEditError] = useState<string | null>(null)
+  const [isEditingValue, setIsEditingValue] = useState(false)
 
   useEffect(() => {
     if (!isActive || !nodeRef.current) {
@@ -136,6 +144,38 @@ function JsonNode({
     })
   }, [isActive])
 
+  useEffect(() => {
+    if (isEditingValue) {
+      editInputRef.current?.focus()
+      editInputRef.current?.select()
+    }
+  }, [isEditingValue])
+
+  const startEditingValue = () => {
+    setDraftValue(JSON.stringify(value))
+    setEditError(null)
+    setIsEditingValue(true)
+  }
+
+  const cancelEditingValue = () => {
+    setDraftValue('')
+    setEditError(null)
+    setIsEditingValue(false)
+  }
+
+  const applyEditingValue = () => {
+    const parsed = parseJsonLiteral(draftValue)
+
+    if (!parsed.isValid) {
+      setEditError('Введите JSON-значение')
+      return
+    }
+
+    onChangeValue(path, parsed.value)
+    setEditError(null)
+    setIsEditingValue(false)
+  }
+
   if (!isContainer) {
     return (
       <div ref={nodeRef} className={`json-node${statusClass}${activeClass}`}>
@@ -145,7 +185,42 @@ function JsonNode({
           </span>
         ) : null}
         {label ? <span className="json-key">{JSON.stringify(label)}: </span> : null}
-        <span className={getValueClassName(value)}>{formatPrimitive(value)}</span>
+        {isEditingValue ? (
+          <span className="json-node__edit-wrap">
+            <input
+              ref={editInputRef}
+              className="json-node__edit-input"
+              aria-label={`${label ?? path}: JSON-значение`}
+              value={draftValue}
+              onBlur={applyEditingValue}
+              onChange={(event) => {
+                setDraftValue(event.target.value)
+                setEditError(null)
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  applyEditingValue()
+                }
+
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  cancelEditingValue()
+                }
+              }}
+            />
+            {editError ? <span className="json-node__edit-error">{editError}</span> : null}
+          </span>
+        ) : (
+          <button
+            className={`json-node__value ${getValueClassName(value)}`.trim()}
+            type="button"
+            aria-label={`Редактировать ${label ?? path}`}
+            onClick={startEditingValue}
+          >
+            {formatPrimitive(value)}
+          </button>
+        )}
       </div>
     )
   }
@@ -204,6 +279,7 @@ function JsonNode({
                 activePath={activePath}
                 collapsedPaths={collapsedPaths}
                 expandedPaths={expandedPaths}
+                onChangeValue={onChangeValue}
                 onTogglePath={onTogglePath}
               />
             ))}
@@ -215,7 +291,7 @@ function JsonNode({
   )
 }
 
-export function JsonTree({ value, diffStatuses, activePath }: JsonTreeProps) {
+export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: JsonTreeProps) {
   const [collapsedPaths, setCollapsedPaths] = useState<Set<string>>(() => new Set())
   const expandedPaths = activePath ? new Set(getAncestorPaths(activePath)) : new Set<string>()
 
@@ -241,6 +317,7 @@ export function JsonTree({ value, diffStatuses, activePath }: JsonTreeProps) {
       activePath={activePath}
       collapsedPaths={collapsedPaths}
       expandedPaths={expandedPaths}
+      onChangeValue={onChangeValue}
       onTogglePath={handleTogglePath}
     />
   )
