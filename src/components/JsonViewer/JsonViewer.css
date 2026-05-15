@@ -111,28 +111,31 @@
 }
 
 .json-node {
+  --diff-rail-width: 18px;
+
   position: relative;
   min-height: 1.55em;
   margin-inline: -10px -8px;
-  padding-inline: 24px 8px;
-  border-left: 3px solid transparent;
+  padding-inline: 10px 8px;
+  border-left: var(--diff-rail-width) solid transparent;
   white-space: nowrap;
 }
 
 .json-node__marker {
   position: absolute;
-  top: 0.32em;
-  left: 5px;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--diff-rail-width) * -1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  color: var(--text);
+  width: var(--diff-rail-width);
+  min-height: 100%;
+  border: 0;
+  border-radius: 0;
+  color: var(--panel-strong);
   font-family: var(--mono);
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-style: normal;
   font-weight: 700;
   line-height: 1;
@@ -206,7 +209,7 @@
 }
 
 .json-node-added > .json-node__marker {
-  color: var(--success);
+  background: var(--success);
 }
 
 .json-node-removed {
@@ -215,7 +218,7 @@
 }
 
 .json-node-removed > .json-node__marker {
-  color: var(--danger);
+  background: var(--danger);
 }
 
 .json-node-changed {
@@ -224,7 +227,7 @@
 }
 
 .json-node-changed > .json-node__marker {
-  color: var(--warning);
+  background: var(--warning);
 }
 
 .json-node-active {
@@ -235,8 +238,7 @@
 }
 
 .json-node-active > .json-node__marker {
-  color: var(--accent);
-  background: var(--panel-strong);
+  color: var(--panel-strong);
 }
 
 .editor-line {
