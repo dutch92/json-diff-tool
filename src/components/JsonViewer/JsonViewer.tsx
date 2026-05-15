@@ -1,4 +1,4 @@
-import { useId, useState, type ChangeEvent } from 'react'
+import { useId, useState, type ChangeEvent, type ClipboardEvent } from 'react'
 import { highlightJsonText } from '../../lib/json/highlight'
 import type { DiffKind, ParseResult } from '../../lib/json/types'
 import { Button, FileButton } from '../ui/Button'
@@ -29,6 +29,21 @@ export function JsonViewer({
 }: JsonViewerProps) {
   const inputId = useId()
   const [mode, setMode] = useState<'view' | 'edit'>('view')
+  const handleSurfacePaste = (event: ClipboardEvent<HTMLDivElement>) => {
+    if (event.target instanceof HTMLTextAreaElement) {
+      return
+    }
+
+    const pastedText = event.clipboardData.getData('text')
+
+    if (!pastedText.trim()) {
+      return
+    }
+
+    event.preventDefault()
+    onChangeText(pastedText)
+    setMode('edit')
+  }
   const isEditing = mode === 'edit'
 
   return (
@@ -59,7 +74,12 @@ export function JsonViewer({
         </div>
       </div>
 
-      <div className="json-viewer__surface" tabIndex={0} aria-label={kicker}>
+      <div
+        className="json-viewer__surface"
+        tabIndex={0}
+        aria-label={kicker}
+        onPaste={handleSurfacePaste}
+      >
         {isEditing ? (
           <textarea
             className="json-viewer__editor"
