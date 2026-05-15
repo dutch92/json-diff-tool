@@ -1,8 +1,8 @@
 # JSON Diff Tool
 
 JSON Diff Tool is a small browser app for comparing two JSON documents side by side.
-It renders JSON as a collapsible tree, highlights changed values, and lets you move
-through every difference without editing the source data.
+It renders JSON as a collapsible tree, highlights changed values, and lets you
+edit, paste, replace, or upload either side JSON before moving through every difference.
 
 Live demo: https://dutch92.github.io/json-diff-tool/
 
@@ -13,7 +13,8 @@ Live demo: https://dutch92.github.io/json-diff-tool/
 - Collapse and expand objects and arrays.
 - Show item count for collapsed arrays.
 - Navigate between differences with a floating previous/next control.
-- Upload JSON files for the left and right side.
+- Paste or edit JSON directly in either side panel.
+- Upload or drag-and-drop JSON files for the left and right side.
 - Format valid JSON with stable key ordering.
 - Swap left and right JSON documents.
 - Reset to built-in sample data.
@@ -48,7 +49,7 @@ npm run build
 src/
   components/
     DiffNavigator/   floating diff navigation
-    JsonViewer/      read-only collapsible JSON tree
+    JsonViewer/      JSON tree plus edit and input surface
     SummaryPanel/    compact app header
     ui/              local UI primitives
   lib/json/          JSON parsing, formatting, diffing, highlighting

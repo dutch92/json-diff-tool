@@ -7,6 +7,7 @@
 .json-viewer__head {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 12px;
 }
@@ -14,8 +15,11 @@
 .json-viewer__actions {
   display: flex;
   align-items: center;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 12px;
+  max-width: 100%;
 }
 
 .json-viewer__surface {
@@ -89,6 +93,12 @@
 .json-viewer__status {
   margin: 0;
   font-size: 0.88rem;
+}
+
+.json-viewer__hint {
+  margin: -6px 0 0;
+  color: var(--text);
+  font-size: 0.78rem;
 }
 
 .json-viewer__status.is-ok {
@@ -229,7 +239,7 @@
   }
 
   .json-viewer__actions {
-    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 
   .json-viewer__surface {

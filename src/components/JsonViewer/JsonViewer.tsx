@@ -179,6 +179,12 @@ export function JsonViewer({
         )}
       </div>
 
+      <p className="json-viewer__hint">
+        {isEditing
+          ? 'Вставьте JSON вручную или перетащите .json файл в эту область'
+          : 'Сфокусируйте область и вставьте JSON или перетащите .json файл'}
+      </p>
+
       <p className={`json-viewer__status ${parsed.error || fileError ? 'is-error' : 'is-ok'}`}>
         {fileError ?? parsed.error ?? 'JSON валиден'}
       </p>
