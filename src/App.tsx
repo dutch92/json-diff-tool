@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DiffNavigator } from './components/DiffNavigator/DiffNavigator'
 import { JsonViewer } from './components/JsonViewer/JsonViewer'
 import { SummaryPanel } from './components/SummaryPanel/SummaryPanel'
@@ -14,7 +14,36 @@ type JsonSideState = {
   version: number
 }
 
+type Theme = 'productive' | 'calm' | 'console'
+
+const themes: { value: Theme; label: string }[] = [
+  { value: 'productive', label: 'Productive' },
+  { value: 'calm', label: 'Calm' },
+  { value: 'console', label: 'Console' },
+]
+
+const themeStorageKey = 'json-diff-tool-theme'
+
+const isTheme = (value: string | null): value is Theme =>
+  value === 'productive' || value === 'calm' || value === 'console'
+
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') {
+    return 'productive'
+  }
+
+  const storedTheme = window.localStorage.getItem(themeStorageKey)
+
+  return isTheme(storedTheme) ? storedTheme : 'productive'
+}
+
 function App() {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
+
+  useEffect(() => {
+    window.localStorage.setItem(themeStorageKey, theme)
+  }, [theme])
+
   const [leftJson, setLeftJson] = useState<JsonSideState>({
     text: formatJson(leftExample),
     version: 0,
@@ -62,10 +91,13 @@ function App() {
   }
 
   return (
-    <main className="app-shell">
+    <main className="app-shell" data-theme={theme}>
       <SummaryPanel
         canCompare={canCompare}
         diffCount={diffs.length}
+        themes={themes}
+        selectedTheme={theme}
+        onSelectTheme={setTheme}
       />
       <DiffNavigator
         diffCount={diffs.length}

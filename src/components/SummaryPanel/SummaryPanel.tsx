@@ -1,15 +1,24 @@
 import { Panel } from '../ui/Panel'
 import './SummaryPanel.css'
 
-type SummaryPanelProps = {
+type SummaryPanelProps<ThemeValue extends string> = {
   canCompare: boolean
   diffCount: number
+  themes: {
+    value: ThemeValue
+    label: string
+  }[]
+  selectedTheme: ThemeValue
+  onSelectTheme: (theme: ThemeValue) => void
 }
 
-export function SummaryPanel({
+export function SummaryPanel<ThemeValue extends string>({
   canCompare,
   diffCount,
-}: SummaryPanelProps) {
+  themes,
+  selectedTheme,
+  onSelectTheme,
+}: SummaryPanelProps<ThemeValue>) {
   return (
     <Panel variant="hero" className="summary-panel">
       <div className="summary-panel__brand">
@@ -25,6 +34,20 @@ export function SummaryPanel({
           <span>Различий найдено</span>
           <strong>{diffCount}</strong>
         </div>
+      </div>
+
+      <div className="theme-switcher">
+        {themes.map((theme) => (
+          <button
+            type="button"
+            className="theme-switcher__button"
+            key={theme.value}
+            aria-pressed={theme.value === selectedTheme}
+            onClick={() => onSelectTheme(theme.value)}
+          >
+            {theme.label}
+          </button>
+        ))}
       </div>
     </Panel>
   )
