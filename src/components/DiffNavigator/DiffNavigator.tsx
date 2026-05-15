@@ -3,6 +3,7 @@ import './DiffNavigator.css'
 type DiffNavigatorProps = {
   activeDiffIndex: number
   diffCount: number
+  activeDiffPath?: string
   onPreviousDiff: () => void
   onNextDiff: () => void
 }
@@ -10,10 +11,12 @@ type DiffNavigatorProps = {
 export function DiffNavigator({
   activeDiffIndex,
   diffCount,
+  activeDiffPath,
   onPreviousDiff,
   onNextDiff,
 }: DiffNavigatorProps) {
   const canNavigate = diffCount > 0
+  const displayPath = activeDiffPath?.replace(/^root\.?/, '') || activeDiffPath
 
   return (
     <nav className="diff-navigator" aria-label="Навигация по отличиям">
@@ -31,6 +34,9 @@ export function DiffNavigator({
       <span className="diff-navigator__count">
         {canNavigate ? `${activeDiffIndex + 1} / ${diffCount}` : '0 / 0'}
       </span>
+      {displayPath ? (
+        <span className="diff-navigator__path">{displayPath}</span>
+      ) : null}
       <button
         className="diff-navigator__button"
         type="button"

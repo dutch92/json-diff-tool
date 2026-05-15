@@ -1,17 +1,17 @@
 .diff-navigator {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 20;
-  display: inline-flex;
-  flex-direction: column;
+  display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 7px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: -4px auto 0;
+  padding: 7px 9px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--panel);
-  box-shadow: var(--shadow);
+  box-shadow: var(--surface-shadow);
 }
 
 .diff-navigator__button {
@@ -62,10 +62,30 @@
   text-align: center;
 }
 
-@media (max-width: 1420px) {
+.diff-navigator__path {
+  max-width: min(52vw, 420px);
+  overflow: hidden;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
   .diff-navigator {
-    top: auto;
-    right: 12px;
-    bottom: 12px;
+    border-radius: var(--radius-control);
+  }
+
+  .diff-navigator__button,
+  .diff-navigator__count {
+    order: 1;
+  }
+
+  .diff-navigator__path {
+    order: 2;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
   }
 }

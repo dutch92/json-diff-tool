@@ -9,6 +9,7 @@ import { highlightJsonText } from '../../lib/json/highlight'
 import type { DiffKind, ParseResult } from '../../lib/json/types'
 import { Button, FileButton } from '../ui/Button'
 import { Panel } from '../ui/Panel'
+import { formatJsonParseError } from '../../lib/json/userMessages'
 import { JsonTree } from './JsonTree'
 import './JsonViewer.css'
 
@@ -192,7 +193,7 @@ export function JsonViewer({
       </p>
 
       <p className={`json-viewer__status ${parsed.error || visibleFileError ? 'is-error' : 'is-ok'}`}>
-        {visibleFileError ?? parsed.error ?? 'JSON валиден'}
+        {visibleFileError ?? (parsed.error ? formatJsonParseError(parsed.error) : 'JSON валиден')}
       </p>
     </Panel>
   )

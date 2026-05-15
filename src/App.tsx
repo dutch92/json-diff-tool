@@ -7,6 +7,7 @@ import { diffJson } from './lib/json/diff'
 import { buildDiffStatusMap } from './lib/json/diffStatus'
 import { leftExample, rightExample } from './lib/json/examples'
 import { formatJson, parseInput } from './lib/json/format'
+import { shouldConfirmExampleReset } from './lib/json/userMessages'
 import './App.css'
 
 type JsonSideState = {
@@ -17,9 +18,9 @@ type JsonSideState = {
 type Theme = 'productive' | 'calm' | 'console'
 
 const themes: { value: Theme; label: string }[] = [
-  { value: 'productive', label: 'Productive' },
-  { value: 'calm', label: 'Calm' },
-  { value: 'console', label: 'Console' },
+  { value: 'productive', label: 'Рабочая' },
+  { value: 'calm', label: 'Спокойная' },
+  { value: 'console', label: 'Консоль' },
 ]
 
 const themeStorageKey = 'json-diff-tool-theme'
@@ -107,6 +108,7 @@ function App() {
       <SummaryPanel
         canCompare={canCompare}
         diffCount={diffs.length}
+        activeDiffPath={activeDiffPath}
         themes={themes}
         selectedTheme={theme}
         onSelectTheme={setTheme}
@@ -114,6 +116,7 @@ function App() {
       <DiffNavigator
         diffCount={diffs.length}
         activeDiffIndex={effectiveActiveDiffIndex}
+        activeDiffPath={activeDiffPath}
         onPreviousDiff={() => {
           setActiveDiffIndex((current) =>
             diffs.length === 0 ? 0 : (current - 1 + diffs.length) % diffs.length,
@@ -138,11 +141,20 @@ function App() {
           </Button>
           <Button
             onClick={() => {
+              const shouldConfirm = shouldConfirmExampleReset(leftJson.version, rightJson.version)
+
+              if (
+                shouldConfirm &&
+                !window.confirm('Сбросить оба JSON к примеру? Текущий ввод будет заменен.')
+              ) {
+                return
+              }
+
               setLeftText(formatJson(leftExample))
               setRightText(formatJson(rightExample))
             }}
           >
-            Вернуть пример
+            Сбросить к примеру
           </Button>
         </div>
 
