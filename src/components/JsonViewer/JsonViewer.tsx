@@ -1,4 +1,4 @@
-import { useId, type ChangeEvent } from 'react'
+import { useId, useState, type ChangeEvent } from 'react'
 import { highlightJsonText } from '../../lib/json/highlight'
 import type { DiffKind, ParseResult } from '../../lib/json/types'
 import { Button, FileButton } from '../ui/Button'
@@ -23,10 +23,13 @@ export function JsonViewer({
   diffStatuses,
   activePath,
   parsed,
+  onChangeText,
   onFormat,
   onLoadFile,
 }: JsonViewerProps) {
   const inputId = useId()
+  const [mode, setMode] = useState<'view' | 'edit'>('view')
+  const isEditing = mode === 'edit'
 
   return (
     <Panel as="article" variant="soft" className="json-viewer">
@@ -35,6 +38,13 @@ export function JsonViewer({
           <span className="section-kicker">{kicker}</span>
         </div>
         <div className="json-viewer__actions">
+          <Button
+            onClick={() => {
+              setMode((currentMode) => (currentMode === 'view' ? 'edit' : 'view'))
+            }}
+          >
+            {isEditing ? 'Показать дерево' : 'Редактировать'}
+          </Button>
           <FileButton htmlFor={inputId}>Загрузить файл</FileButton>
           <input
             id={inputId}
@@ -50,7 +60,15 @@ export function JsonViewer({
       </div>
 
       <div className="json-viewer__surface" tabIndex={0} aria-label={kicker}>
-        {parsed.isValid ? (
+        {isEditing ? (
+          <textarea
+            className="json-viewer__editor"
+            aria-label={`${kicker}: исходный JSON`}
+            spellCheck={false}
+            value={text}
+            onChange={(event) => onChangeText(event.target.value)}
+          />
+        ) : parsed.isValid ? (
           <JsonTree
             value={parsed.value}
             diffStatuses={diffStatuses}
