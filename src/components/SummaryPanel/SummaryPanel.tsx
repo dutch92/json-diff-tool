@@ -1,8 +1,8 @@
 import { Panel } from '../ui/Panel'
+import { DiffNavigator } from '../DiffNavigator/DiffNavigator'
 import './SummaryPanel.css'
 
 type SummaryPanelProps<ThemeValue extends string> = {
-  canCompare: boolean
   diffCount: number
   activeDiffPath?: string
   themes: {
@@ -11,61 +11,52 @@ type SummaryPanelProps<ThemeValue extends string> = {
   }[]
   selectedTheme: ThemeValue
   onSelectTheme: (theme: ThemeValue) => void
+  activeDiffIndex: number
+  onPreviousDiff: () => void
+  onNextDiff: () => void
 }
 
 export function SummaryPanel<ThemeValue extends string>({
-  canCompare,
   diffCount,
   activeDiffPath,
   themes,
   selectedTheme,
   onSelectTheme,
+  activeDiffIndex,
+  onPreviousDiff,
+  onNextDiff,
 }: SummaryPanelProps<ThemeValue>) {
-  const displayPath = activeDiffPath?.replace(/^root\.?/, '') || activeDiffPath
-
   return (
     <Panel variant="hero" className="summary-panel">
       <div className="summary-panel__brand">
         JSON Diff Tool
       </div>
 
-      <div className="summary-panel__metrics">
-        <div className="summary-panel__metric">
-          <span>Статус</span>
-          <strong>{canCompare ? 'Сравнение обновлено' : 'Исправьте JSON'}</strong>
-        </div>
-        <div className="summary-panel__metric">
-          <span>Различий найдено</span>
-          <strong>{diffCount}</strong>
-        </div>
-        {displayPath ? (
-          <div className="summary-panel__metric summary-panel__metric-path">
-            <span>Текущее отличие</span>
-            <strong>{displayPath}</strong>
-          </div>
-        ) : null}
-      </div>
+      <DiffNavigator
+        diffCount={diffCount}
+        activeDiffIndex={activeDiffIndex}
+        activeDiffPath={activeDiffPath}
+        onPreviousDiff={onPreviousDiff}
+        onNextDiff={onNextDiff}
+      />
 
-      <div className="summary-panel__legend" aria-label="Легенда отличий">
-        <span><i className="summary-panel__marker is-added">+</i>Добавлено</span>
-        <span><i className="summary-panel__marker is-removed">-</i>Удалено</span>
-        <span><i className="summary-panel__marker is-changed">~</i>Изменено</span>
-        <span><i className="summary-panel__marker is-active">◎</i>Текущее</span>
-      </div>
-
-      <div className="theme-switcher">
-        {themes.map((theme) => (
-          <button
-            type="button"
-            className="theme-switcher__button"
-            key={theme.value}
-            aria-pressed={theme.value === selectedTheme}
-            onClick={() => onSelectTheme(theme.value)}
-          >
-            {theme.label}
-          </button>
-        ))}
-      </div>
+      <label className="theme-switcher">
+        <span className="theme-switcher__label">Тема</span>
+        <select
+          className="theme-switcher__select"
+          value={selectedTheme}
+          onChange={(event) => onSelectTheme(event.target.value as ThemeValue)}
+        >
+          {themes.map((theme) => (
+            <option
+              key={theme.value}
+              value={theme.value}
+            >
+              {theme.label}
+            </option>
+          ))}
+        </select>
+      </label>
     </Panel>
   )
 }

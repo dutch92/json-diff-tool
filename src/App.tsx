@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { DiffNavigator } from './components/DiffNavigator/DiffNavigator'
 import { JsonViewer } from './components/JsonViewer/JsonViewer'
 import { SummaryPanel } from './components/SummaryPanel/SummaryPanel'
 import { Button } from './components/ui/Button'
@@ -106,17 +105,12 @@ function App() {
   return (
     <main className="app-shell" data-theme={theme}>
       <SummaryPanel
-        canCompare={canCompare}
         diffCount={diffs.length}
+        activeDiffIndex={effectiveActiveDiffIndex}
         activeDiffPath={activeDiffPath}
         themes={themes}
         selectedTheme={theme}
         onSelectTheme={setTheme}
-      />
-      <DiffNavigator
-        diffCount={diffs.length}
-        activeDiffIndex={effectiveActiveDiffIndex}
-        activeDiffPath={activeDiffPath}
         onPreviousDiff={() => {
           setActiveDiffIndex((current) =>
             diffs.length === 0 ? 0 : (current - 1 + diffs.length) % diffs.length,

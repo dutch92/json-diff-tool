@@ -1,6 +1,7 @@
 .app-shell {
   display: grid;
   gap: 18px;
+  align-content: start;
   min-height: 100vh;
   padding: 24px;
   color: var(--text);

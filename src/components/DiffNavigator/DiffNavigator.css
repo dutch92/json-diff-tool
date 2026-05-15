@@ -2,15 +2,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
   gap: 8px;
-  width: fit-content;
+  min-width: 0;
+  width: min(100%, 560px);
   max-width: 100%;
-  margin: -4px auto 0;
-  padding: 7px 9px;
+  margin: 0;
+  padding: 4px 6px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--panel);
+  background: var(--panel-strong);
   box-shadow: var(--surface-shadow);
 }
 
@@ -19,8 +19,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: 1px solid var(--button-border);
   border-radius: 999px;
@@ -63,6 +64,7 @@
 }
 
 .diff-navigator__path {
+  min-width: 0;
   max-width: min(52vw, 420px);
   overflow: hidden;
   color: var(--text);
@@ -74,18 +76,16 @@
 
 @media (max-width: 520px) {
   .diff-navigator {
-    border-radius: var(--radius-control);
-  }
-
-  .diff-navigator__button,
-  .diff-navigator__count {
-    order: 1;
+    gap: 6px;
   }
 
   .diff-navigator__path {
-    order: 2;
-    width: 100%;
-    max-width: 100%;
-    text-align: center;
+    max-width: min(46vw, 220px);
+  }
+}
+
+@media (max-width: 380px) {
+  .diff-navigator__path {
+    display: none;
   }
 }
