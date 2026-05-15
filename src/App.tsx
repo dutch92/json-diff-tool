@@ -32,16 +32,24 @@ const getInitialTheme = (): Theme => {
     return 'productive'
   }
 
-  const storedTheme = window.localStorage.getItem(themeStorageKey)
+  try {
+    const storedTheme = window.localStorage.getItem(themeStorageKey)
 
-  return isTheme(storedTheme) ? storedTheme : 'productive'
+    return isTheme(storedTheme) ? storedTheme : 'productive'
+  } catch {
+    return 'productive'
+  }
 }
 
 function App() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
-    window.localStorage.setItem(themeStorageKey, theme)
+    try {
+      window.localStorage.setItem(themeStorageKey, theme)
+    } catch {
+      // Ignore blocked or unavailable storage.
+    }
   }, [theme])
 
   const [leftJson, setLeftJson] = useState<JsonSideState>({
