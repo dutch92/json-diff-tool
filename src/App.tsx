@@ -45,6 +45,10 @@ function App() {
   const [theme, setTheme] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.theme = theme
+    }
+
     try {
       window.localStorage.setItem(themeStorageKey, theme)
     } catch {
