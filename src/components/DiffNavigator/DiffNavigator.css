@@ -62,7 +62,7 @@
   text-align: center;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 1360px) {
   .diff-navigator {
     top: auto;
     right: 12px;
