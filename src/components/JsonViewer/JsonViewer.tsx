@@ -15,6 +15,7 @@ import './JsonViewer.css'
 type JsonViewerProps = {
   kicker: string
   text: string
+  inputVersion: number
   diffStatuses: Map<string, DiffKind>
   activePath?: string
   parsed: ParseResult
@@ -26,6 +27,7 @@ type JsonViewerProps = {
 export function JsonViewer({
   kicker,
   text,
+  inputVersion,
   diffStatuses,
   activePath,
   parsed,
@@ -37,7 +39,11 @@ export function JsonViewer({
   const [mode, setMode] = useState<'view' | 'edit'>('view')
   const isEditing = mode === 'edit'
   const [isDraggingFile, setIsDraggingFile] = useState(false)
-  const [fileError, setFileError] = useState<string | null>(null)
+  const [fileError, setFileError] = useState<{ message: string; inputVersion: number } | null>(
+    null,
+  )
+  const visibleFileError =
+    fileError?.inputVersion === inputVersion ? fileError.message : null
 
   const handleTextChange = (value: string) => {
     setFileError(null)
@@ -66,7 +72,7 @@ export function JsonViewer({
       setFileError(null)
       setMode('edit')
     } catch {
-      setFileError('Не удалось прочитать файл')
+      setFileError({ message: 'Не удалось прочитать файл', inputVersion })
     }
   }
 
@@ -185,8 +191,8 @@ export function JsonViewer({
           : 'Сфокусируйте область и вставьте JSON или перетащите .json файл'}
       </p>
 
-      <p className={`json-viewer__status ${parsed.error || fileError ? 'is-error' : 'is-ok'}`}>
-        {fileError ?? parsed.error ?? 'JSON валиден'}
+      <p className={`json-viewer__status ${parsed.error || visibleFileError ? 'is-error' : 'is-ok'}`}>
+        {visibleFileError ?? parsed.error ?? 'JSON валиден'}
       </p>
     </Panel>
   )

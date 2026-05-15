@@ -9,9 +9,30 @@ import { leftExample, rightExample } from './lib/json/examples'
 import { formatJson, parseInput } from './lib/json/format'
 import './App.css'
 
+type JsonSideState = {
+  text: string
+  version: number
+}
+
 function App() {
-  const [leftText, setLeftText] = useState(formatJson(leftExample))
-  const [rightText, setRightText] = useState(formatJson(rightExample))
+  const [leftJson, setLeftJson] = useState<JsonSideState>({
+    text: formatJson(leftExample),
+    version: 0,
+  })
+  const [rightJson, setRightJson] = useState<JsonSideState>({
+    text: formatJson(rightExample),
+    version: 0,
+  })
+  const leftText = leftJson.text
+  const rightText = rightJson.text
+
+  const setLeftText = (value: string) => {
+    setLeftJson((current) => ({ text: value, version: current.version + 1 }))
+  }
+
+  const setRightText = (value: string) => {
+    setRightJson((current) => ({ text: value, version: current.version + 1 }))
+  }
 
   const leftParsed = parseInput(leftText)
   const rightParsed = parseInput(rightText)
@@ -65,8 +86,8 @@ function App() {
         <div className="workspace-panel__toolbar">
           <Button
             onClick={() => {
-              setLeftText(rightText)
-              setRightText(leftText)
+              setLeftJson((current) => ({ text: rightText, version: current.version + 1 }))
+              setRightJson((current) => ({ text: leftText, version: current.version + 1 }))
             }}
           >
             Поменять местами
@@ -85,6 +106,7 @@ function App() {
           <JsonViewer
             kicker="Левый JSON"
             text={leftText}
+            inputVersion={leftJson.version}
             diffStatuses={leftDiffStatuses}
             activePath={activeDiffPath}
             parsed={leftParsed}
@@ -96,6 +118,7 @@ function App() {
           <JsonViewer
             kicker="Правый JSON"
             text={rightText}
+            inputVersion={rightJson.version}
             diffStatuses={rightDiffStatuses}
             activePath={activeDiffPath}
             parsed={rightParsed}
