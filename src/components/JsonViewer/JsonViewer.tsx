@@ -1,4 +1,10 @@
-import { useId, useState, type ChangeEvent, type ClipboardEvent } from 'react'
+import {
+  useId,
+  useState,
+  type ChangeEvent,
+  type ClipboardEvent,
+  type DragEvent,
+} from 'react'
 import { highlightJsonText } from '../../lib/json/highlight'
 import type { DiffKind, ParseResult } from '../../lib/json/types'
 import { Button, FileButton } from '../ui/Button'
@@ -14,7 +20,7 @@ type JsonViewerProps = {
   parsed: ParseResult
   onChangeText: (value: string) => void
   onFormat: () => void
-  onLoadFile: (event: ChangeEvent<HTMLInputElement>) => void
+  onLoadSelectedFile: (file: File) => Promise<void>
 }
 
 export function JsonViewer({
@@ -25,10 +31,19 @@ export function JsonViewer({
   parsed,
   onChangeText,
   onFormat,
-  onLoadFile,
+  onLoadSelectedFile,
 }: JsonViewerProps) {
   const inputId = useId()
   const [mode, setMode] = useState<'view' | 'edit'>('view')
+  const isEditing = mode === 'edit'
+  const [isDraggingFile, setIsDraggingFile] = useState(false)
+  const [fileError, setFileError] = useState<string | null>(null)
+
+  const handleTextChange = (value: string) => {
+    setFileError(null)
+    onChangeText(value)
+  }
+
   const handleSurfacePaste = (event: ClipboardEvent<HTMLDivElement>) => {
     if (event.target instanceof HTMLTextAreaElement) {
       return
@@ -41,10 +56,69 @@ export function JsonViewer({
     }
 
     event.preventDefault()
-    onChangeText(pastedText)
+    handleTextChange(pastedText)
     setMode('edit')
   }
-  const isEditing = mode === 'edit'
+
+  const loadFile = async (file: File) => {
+    try {
+      await onLoadSelectedFile(file)
+      setFileError(null)
+      setMode('edit')
+    } catch {
+      setFileError('Не удалось прочитать файл')
+    }
+  }
+
+  const handleFileInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    try {
+      await loadFile(file)
+    } finally {
+      event.target.value = ''
+    }
+  }
+
+  const hasDraggedFiles = (event: DragEvent<HTMLDivElement>) =>
+    Array.from(event.dataTransfer.types).includes('Files')
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    if (!hasDraggedFiles(event)) {
+      return
+    }
+
+    event.preventDefault()
+    setIsDraggingFile(true)
+  }
+
+  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    if (!isDraggingFile) {
+      return
+    }
+
+    if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      return
+    }
+
+    setIsDraggingFile(false)
+  }
+
+  const handleDrop = async (event: DragEvent<HTMLDivElement>) => {
+    const file = event.dataTransfer.files[0]
+
+    if (!file) {
+      return
+    }
+
+    event.preventDefault()
+    setIsDraggingFile(false)
+    await loadFile(file)
+  }
 
   return (
     <Panel as="article" variant="soft" className="json-viewer">
@@ -66,7 +140,7 @@ export function JsonViewer({
             className="json-viewer__file-input"
             type="file"
             accept=".json,application/json"
-            onChange={onLoadFile}
+            onChange={handleFileInputChange}
           />
           <Button onClick={onFormat} disabled={!parsed.isValid}>
             Форматировать
@@ -75,10 +149,13 @@ export function JsonViewer({
       </div>
 
       <div
-        className="json-viewer__surface"
+        className={`json-viewer__surface ${isDraggingFile ? 'is-dragging-file' : ''}`.trim()}
         tabIndex={0}
         aria-label={kicker}
         onPaste={handleSurfacePaste}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         {isEditing ? (
           <textarea
@@ -86,7 +163,7 @@ export function JsonViewer({
             aria-label={`${kicker}: исходный JSON`}
             spellCheck={false}
             value={text}
-            onChange={(event) => onChangeText(event.target.value)}
+            onChange={(event) => handleTextChange(event.target.value)}
           />
         ) : parsed.isValid ? (
           <JsonTree
@@ -102,8 +179,8 @@ export function JsonViewer({
         )}
       </div>
 
-      <p className={`json-viewer__status ${parsed.error ? 'is-error' : 'is-ok'}`}>
-        {parsed.error ?? 'JSON валиден'}
+      <p className={`json-viewer__status ${parsed.error || fileError ? 'is-error' : 'is-ok'}`}>
+        {fileError ?? parsed.error ?? 'JSON валиден'}
       </p>
     </Panel>
   )

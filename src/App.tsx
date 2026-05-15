@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react'
+import { useState } from 'react'
 import { DiffNavigator } from './components/DiffNavigator/DiffNavigator'
 import { JsonViewer } from './components/JsonViewer/JsonViewer'
 import { SummaryPanel } from './components/SummaryPanel/SummaryPanel'
@@ -33,21 +33,12 @@ function App() {
     }
   }
 
-  const createFileLoader =
-    (setText: (value: string) => void) =>
-    async (event: ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0]
+  const readJsonFile = async (file: File, setText: (value: string) => void) => {
+    const content = await file.text()
+    const parsed = parseInput(content)
 
-      if (!file) {
-        return
-      }
-
-      const content = await file.text()
-      const parsed = parseInput(content)
-
-      setText(parsed.isValid ? formatJson(parsed.value) : content)
-      event.target.value = ''
-    }
+    setText(parsed.isValid ? formatJson(parsed.value) : content)
+  }
 
   return (
     <main className="app-shell">
@@ -99,7 +90,7 @@ function App() {
             parsed={leftParsed}
             onChangeText={setLeftText}
             onFormat={() => formatSide(leftText, setLeftText)}
-            onLoadFile={createFileLoader(setLeftText)}
+            onLoadSelectedFile={(file) => readJsonFile(file, setLeftText)}
           />
 
           <JsonViewer
@@ -110,7 +101,7 @@ function App() {
             parsed={rightParsed}
             onChangeText={setRightText}
             onFormat={() => formatSide(rightText, setRightText)}
-            onLoadFile={createFileLoader(setRightText)}
+            onLoadSelectedFile={(file) => readJsonFile(file, setRightText)}
           />
         </div>
       </section>

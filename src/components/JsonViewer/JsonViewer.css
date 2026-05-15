@@ -57,6 +57,13 @@
   outline-offset: 2px;
 }
 
+.json-viewer__surface.is-dragging-file {
+  border-color: var(--accent);
+  background:
+    linear-gradient(rgba(15, 118, 110, 0.08), rgba(15, 118, 110, 0.08)),
+    var(--input-bg);
+}
+
 .json-viewer__surface::selection,
 .json-viewer__raw::selection {
   background: rgba(15, 118, 110, 0.25);
