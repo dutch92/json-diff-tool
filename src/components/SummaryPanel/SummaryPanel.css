@@ -3,7 +3,7 @@
   top: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: minmax(124px, 1fr) auto minmax(124px, 1fr);
+  grid-template-columns: auto auto minmax(124px, 1fr);
   align-items: center;
   gap: 10px;
   min-height: 50px;
