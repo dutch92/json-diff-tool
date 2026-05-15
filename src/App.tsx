@@ -97,6 +97,7 @@ function App() {
             diffStatuses={leftDiffStatuses}
             activePath={activeDiffPath}
             parsed={leftParsed}
+            onChangeText={setLeftText}
             onFormat={() => formatSide(leftText, setLeftText)}
             onLoadFile={createFileLoader(setLeftText)}
           />
@@ -107,6 +108,7 @@ function App() {
             diffStatuses={rightDiffStatuses}
             activePath={activeDiffPath}
             parsed={rightParsed}
+            onChangeText={setRightText}
             onFormat={() => formatSide(rightText, setRightText)}
             onLoadFile={createFileLoader(setRightText)}
           />

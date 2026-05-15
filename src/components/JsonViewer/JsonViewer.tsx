@@ -12,6 +12,7 @@ type JsonViewerProps = {
   diffStatuses: Map<string, DiffKind>
   activePath?: string
   parsed: ParseResult
+  onChangeText: (value: string) => void
   onFormat: () => void
   onLoadFile: (event: ChangeEvent<HTMLInputElement>) => void
 }
