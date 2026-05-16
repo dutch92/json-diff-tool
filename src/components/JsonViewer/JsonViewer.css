@@ -110,26 +110,40 @@
   color: var(--danger);
 }
 
-.json-node {
-  --diff-rail-width: 18px;
+.json-tree {
+  --json-line-number-width: 44px;
+  --json-marker-width: 24px;
+  --json-indent-width: 20px;
 
-  position: relative;
+  min-width: max-content;
+}
+
+.json-node__group {
+  display: contents;
+}
+
+.json-node {
+  display: grid;
+  grid-template-columns: var(--json-line-number-width) var(--json-marker-width) minmax(max-content, 1fr);
   min-height: 1.55em;
-  margin-inline: -10px -8px;
-  padding-inline: 10px 8px;
-  border-left: var(--diff-rail-width) solid transparent;
+  margin-inline: -14px;
   white-space: nowrap;
 }
 
+.json-node__line-number {
+  padding-inline: 8px;
+  border-right: 1px solid var(--border);
+  background: var(--panel-soft);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  user-select: none;
+}
+
 .json-node__marker {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--diff-rail-width) * -1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--diff-rail-width);
   min-height: 100%;
   border: 0;
   border-radius: 0;
@@ -139,6 +153,12 @@
   font-style: normal;
   font-weight: 700;
   line-height: 1;
+  user-select: none;
+}
+
+.json-node__content {
+  min-width: 0;
+  padding-inline: calc(8px + (var(--json-node-depth) * var(--json-indent-width))) 12px;
 }
 
 .json-node__toggle {
@@ -232,7 +252,7 @@
 }
 
 .json-node__children {
-  margin-left: 20px;
+  display: contents;
 }
 
 .json-node__closing {
@@ -253,7 +273,6 @@
 
 .json-node-added {
   background: var(--success-soft);
-  border-left-color: var(--success);
 }
 
 .json-node-added > .json-node__marker {
@@ -262,7 +281,6 @@
 
 .json-node-removed {
   background: var(--danger-soft);
-  border-left-color: var(--danger);
 }
 
 .json-node-removed > .json-node__marker {
@@ -271,7 +289,6 @@
 
 .json-node-changed {
   background: var(--warning-soft);
-  border-left-color: var(--warning);
 }
 
 .json-node-changed > .json-node__marker {
@@ -283,10 +300,6 @@
     inset 0 0 0 1px var(--accent),
     0 0 0 3px var(--accent-soft);
   background: var(--accent-soft);
-}
-
-.json-node-active > .json-node__marker {
-  color: var(--panel-strong);
 }
 
 .editor-line {
