@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
 import { getDiffMarker } from '../../lib/json/diffMarkers'
 import { parseJsonLiteral } from '../../lib/json/editValue'
 import type { DiffKind, JsonValue } from '../../lib/json/types'
@@ -14,12 +14,42 @@ type JsonNodeProps = {
   label?: string
   path: string
   value: JsonValue
+  depth: number
+  getNextLineNumber: () => number
   diffStatuses: Map<string, DiffKind>
   activePath?: string
   collapsedPaths: Set<string>
   expandedPaths: Set<string>
   onChangeValue: (path: string, value: JsonValue) => void
   onTogglePath: (path: string) => void
+}
+
+type JsonRowProps = {
+  children: ReactNode
+  className: string
+  depth: number
+  lineNumber: number
+  marker: ReturnType<typeof getDiffMarker> | null
+  nodeRef?: RefObject<HTMLDivElement | null>
+}
+
+function JsonRow({ children, className, depth, lineNumber, marker, nodeRef }: JsonRowProps) {
+  return (
+    <div ref={nodeRef} className={className}>
+      <span className="json-node__line-number" aria-hidden="true">
+        {lineNumber}
+      </span>
+      <span className="json-node__marker" aria-label={marker?.label ?? undefined}>
+        {marker?.symbol ?? ''}
+      </span>
+      <span
+        className="json-node__content"
+        style={{ '--json-node-depth': depth } as CSSProperties}
+      >
+        {children}
+      </span>
+    </div>
+  )
 }
 
 function joinPath(basePath: string, key: string | number) {
@@ -110,6 +140,8 @@ function JsonNode({
   label,
   path,
   value,
+  depth,
+  getNextLineNumber,
   diffStatuses,
   activePath,
   collapsedPaths,
@@ -176,14 +208,17 @@ function JsonNode({
     setIsEditingValue(false)
   }
 
+  const lineNumber = getNextLineNumber()
+
   if (!isContainer) {
     return (
-      <div ref={nodeRef} className={`json-node${statusClass}${activeClass}`}>
-        {marker ? (
-          <span className="json-node__marker" aria-label={marker.label}>
-            {marker.symbol}
-          </span>
-        ) : null}
+      <JsonRow
+        className={`json-node${statusClass}${activeClass}`}
+        depth={depth}
+        lineNumber={lineNumber}
+        marker={marker}
+        nodeRef={nodeRef}
+      >
         {label ? <span className="json-key">{JSON.stringify(label)}: </span> : null}
         {isEditingValue ? (
           <span className="json-node__edit-wrap">
@@ -221,7 +256,7 @@ function JsonNode({
             {formatPrimitive(value)}
           </button>
         )}
-      </div>
+      </JsonRow>
     )
   }
 
@@ -234,37 +269,40 @@ function JsonNode({
   const closing = isArray ? ']' : '}'
 
   return (
-    <div ref={nodeRef} className={`json-node${statusClass}${activeClass}`}>
-      {marker ? (
-        <span className="json-node__marker" aria-label={marker.label}>
-          {marker.symbol}
-        </span>
-      ) : null}
-      <button
-        className="json-node__toggle"
-        type="button"
-        aria-expanded={!isCollapsed}
-        onClick={() => onTogglePath(path)}
+    <div className="json-node__group">
+      <JsonRow
+        className={`json-node${statusClass}${activeClass}`}
+        depth={depth}
+        lineNumber={lineNumber}
+        marker={marker}
+        nodeRef={nodeRef}
       >
-        <svg
-          className="json-node__chevron"
-          viewBox="0 0 16 16"
-          aria-hidden="true"
+        <button
+          className="json-node__toggle"
+          type="button"
+          aria-expanded={!isCollapsed}
+          onClick={() => onTogglePath(path)}
         >
-          <path d="M5.75 3.5 10.25 8l-4.5 4.5" />
-        </svg>
-        {label ? <span className="json-key">{JSON.stringify(label)}: </span> : null}
-        <span>{opening}</span>
-        {isCollapsed ? (
-          <>
-            <span className="json-node__ellipsis">...</span>
-            <span>{closing}</span>
-            {isArray ? (
-              <span className="json-node__meta">{getArrayLabel(value.length)}</span>
-            ) : null}
-          </>
-        ) : null}
-      </button>
+          <svg
+            className="json-node__chevron"
+            viewBox="0 0 16 16"
+            aria-hidden="true"
+          >
+            <path d="M5.75 3.5 10.25 8l-4.5 4.5" />
+          </svg>
+          {label ? <span className="json-key">{JSON.stringify(label)}: </span> : null}
+          <span>{opening}</span>
+          {isCollapsed ? (
+            <>
+              <span className="json-node__ellipsis">...</span>
+              <span>{closing}</span>
+              {isArray ? (
+                <span className="json-node__meta">{getArrayLabel(value.length)}</span>
+              ) : null}
+            </>
+          ) : null}
+        </button>
+      </JsonRow>
 
       {!isCollapsed ? (
         <>
@@ -275,6 +313,8 @@ function JsonNode({
                 label={typeof key === 'string' ? key : undefined}
                 path={joinPath(path, key)}
                 value={childValue}
+                depth={depth + 1}
+                getNextLineNumber={getNextLineNumber}
                 diffStatuses={diffStatuses}
                 activePath={activePath}
                 collapsedPaths={collapsedPaths}
@@ -284,7 +324,14 @@ function JsonNode({
               />
             ))}
           </div>
-          <div className="json-node json-node__closing">{closing}</div>
+          <JsonRow
+            className="json-node json-node__closing"
+            depth={depth}
+            lineNumber={getNextLineNumber()}
+            marker={null}
+          >
+            {closing}
+          </JsonRow>
         </>
       ) : null}
     </div>
@@ -294,6 +341,11 @@ function JsonNode({
 export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: JsonTreeProps) {
   const [collapsedPaths, setCollapsedPaths] = useState<Set<string>>(() => new Set())
   const expandedPaths = activePath ? new Set(getAncestorPaths(activePath)) : new Set<string>()
+  let lineNumber = 0
+  const getNextLineNumber = () => {
+    lineNumber += 1
+    return lineNumber
+  }
 
   const handleTogglePath = (path: string) => {
     setCollapsedPaths((current) => {
@@ -310,15 +362,19 @@ export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: Jso
   }
 
   return (
-    <JsonNode
-      path="root"
-      value={value}
-      diffStatuses={diffStatuses}
-      activePath={activePath}
-      collapsedPaths={collapsedPaths}
-      expandedPaths={expandedPaths}
-      onChangeValue={onChangeValue}
-      onTogglePath={handleTogglePath}
-    />
+    <div className="json-tree">
+      <JsonNode
+        path="root"
+        value={value}
+        depth={0}
+        getNextLineNumber={getNextLineNumber}
+        diffStatuses={diffStatuses}
+        activePath={activePath}
+        collapsedPaths={collapsedPaths}
+        expandedPaths={expandedPaths}
+        onChangeValue={onChangeValue}
+        onTogglePath={handleTogglePath}
+      />
+    </div>
   )
 }
