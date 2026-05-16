@@ -1,4 +1,12 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+  type RefObject,
+} from 'react'
 import { getDiffMarker } from '../../lib/json/diffMarkers'
 import { parseJsonLiteral } from '../../lib/json/editValue'
 import type { DiffKind, JsonValue } from '../../lib/json/types'
@@ -15,13 +23,27 @@ type JsonNodeProps = {
   path: string
   value: JsonValue
   depth: number
-  getNextLineNumber: () => number
+  lineNumbers: LineNumbersByPath
   diffStatuses: Map<string, DiffKind>
   activePath?: string
   collapsedPaths: Set<string>
   expandedPaths: Set<string>
   onChangeValue: (path: string, value: JsonValue) => void
   onTogglePath: (path: string) => void
+}
+
+type JsonNodeLineNumbers = {
+  opening: number
+  closing: number | null
+}
+
+type LineNumbersByPath = Map<string, JsonNodeLineNumbers>
+
+type LineNumberEntry = [string, JsonNodeLineNumbers]
+
+type LineNumberResult = {
+  entries: LineNumberEntry[]
+  nextLineNumber: number
 }
 
 type JsonRowProps = {
@@ -136,12 +158,80 @@ function getArrayLabel(length: number) {
   return `${length} элементов`
 }
 
+function getContainerEntries(value: JsonValue) {
+  if (Array.isArray(value)) {
+    return value.map((item, index) => [index, item] as const)
+  }
+
+  if (typeof value === 'object' && value !== null) {
+    return Object.keys(value)
+      .sort()
+      .map((key) => [key, value[key]] as const)
+  }
+
+  return []
+}
+
+function collectVisibleLineNumbers(
+  value: JsonValue,
+  path: string,
+  collapsedPaths: Set<string>,
+  expandedPaths: Set<string>,
+  lineNumber: number,
+): LineNumberResult {
+  const isArray = Array.isArray(value)
+  const isObject = typeof value === 'object' && value !== null && !isArray
+  const isContainer = isArray || isObject
+  const isCollapsed = collapsedPaths.has(path) && !expandedPaths.has(path)
+
+  if (!isContainer || isCollapsed) {
+    return {
+      entries: [[path, { opening: lineNumber, closing: null }]],
+      nextLineNumber: lineNumber + 1,
+    }
+  }
+
+  const childrenResult = getContainerEntries(value).reduce<LineNumberResult>(
+    (result, [key, childValue]) => {
+      const childResult = collectVisibleLineNumbers(
+        childValue,
+        joinPath(path, key),
+        collapsedPaths,
+        expandedPaths,
+        result.nextLineNumber,
+      )
+
+      return {
+        entries: [...result.entries, ...childResult.entries],
+        nextLineNumber: childResult.nextLineNumber,
+      }
+    },
+    { entries: [], nextLineNumber: lineNumber + 1 },
+  )
+
+  return {
+    entries: [
+      [path, { opening: lineNumber, closing: childrenResult.nextLineNumber }],
+      ...childrenResult.entries,
+    ],
+    nextLineNumber: childrenResult.nextLineNumber + 1,
+  }
+}
+
+function getVisibleLineNumbers(
+  value: JsonValue,
+  collapsedPaths: Set<string>,
+  expandedPaths: Set<string>,
+) {
+  return new Map(collectVisibleLineNumbers(value, 'root', collapsedPaths, expandedPaths, 1).entries)
+}
+
 function JsonNode({
   label,
   path,
   value,
   depth,
-  getNextLineNumber,
+  lineNumbers,
   diffStatuses,
   activePath,
   collapsedPaths,
@@ -208,7 +298,8 @@ function JsonNode({
     setIsEditingValue(false)
   }
 
-  const lineNumber = getNextLineNumber()
+  const nodeLineNumbers = lineNumbers.get(path)
+  const lineNumber = nodeLineNumbers?.opening ?? 0
 
   if (!isContainer) {
     return (
@@ -260,11 +351,7 @@ function JsonNode({
     )
   }
 
-  const entries = isArray
-    ? value.map((item, index) => [index, item] as const)
-    : Object.keys(value)
-        .sort()
-        .map((key) => [key, value[key]] as const)
+  const entries = getContainerEntries(value)
   const opening = isArray ? '[' : '{'
   const closing = isArray ? ']' : '}'
 
@@ -314,7 +401,7 @@ function JsonNode({
                 path={joinPath(path, key)}
                 value={childValue}
                 depth={depth + 1}
-                getNextLineNumber={getNextLineNumber}
+                lineNumbers={lineNumbers}
                 diffStatuses={diffStatuses}
                 activePath={activePath}
                 collapsedPaths={collapsedPaths}
@@ -327,7 +414,7 @@ function JsonNode({
           <JsonRow
             className="json-node json-node__closing"
             depth={depth}
-            lineNumber={getNextLineNumber()}
+            lineNumber={nodeLineNumbers?.closing ?? 0}
             marker={null}
           >
             {closing}
@@ -340,12 +427,14 @@ function JsonNode({
 
 export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: JsonTreeProps) {
   const [collapsedPaths, setCollapsedPaths] = useState<Set<string>>(() => new Set())
-  const expandedPaths = activePath ? new Set(getAncestorPaths(activePath)) : new Set<string>()
-  let lineNumber = 0
-  const getNextLineNumber = () => {
-    lineNumber += 1
-    return lineNumber
-  }
+  const expandedPaths = useMemo(
+    () => (activePath ? new Set(getAncestorPaths(activePath)) : new Set<string>()),
+    [activePath],
+  )
+  const lineNumbers = useMemo(
+    () => getVisibleLineNumbers(value, collapsedPaths, expandedPaths),
+    [value, collapsedPaths, expandedPaths],
+  )
 
   const handleTogglePath = (path: string) => {
     setCollapsedPaths((current) => {
@@ -367,7 +456,7 @@ export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: Jso
         path="root"
         value={value}
         depth={0}
-        getNextLineNumber={getNextLineNumber}
+        lineNumbers={lineNumbers}
         diffStatuses={diffStatuses}
         activePath={activePath}
         collapsedPaths={collapsedPaths}
