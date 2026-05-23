@@ -8,10 +8,10 @@
   width: min(100%, 560px);
   max-width: 100%;
   margin: 0;
-  padding: 4px 6px;
+  padding: 3px 5px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--panel-strong);
+  background: var(--input-bg);
   box-shadow: var(--surface-shadow);
 }
 
@@ -27,8 +27,8 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   border: 1px solid var(--button-border);
   border-radius: 999px;
@@ -74,7 +74,7 @@
   min-width: 40px;
   color: var(--text-strong);
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   text-align: center;
 }
 
@@ -85,7 +85,7 @@
   overflow: hidden;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

@@ -3,42 +3,106 @@
   top: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: auto auto minmax(124px, 1fr);
+  grid-template-columns: auto minmax(280px, 1fr) auto;
   align-items: center;
-  gap: 10px;
-  min-height: 50px;
-  padding: 8px 12px;
+  gap: 12px;
+  min-height: 48px;
+  padding: 7px 10px;
   border-radius: var(--radius-control);
   overflow: visible;
 }
 
 .summary-panel__brand {
   color: var(--text-strong);
-  font-family: var(--heading);
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 760;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
 .theme-switcher {
+  position: relative;
   justify-self: end;
+  min-width: 0;
+}
+
+.theme-switcher[open] .theme-switcher__summary {
+  border-color: var(--accent);
+  background: var(--button-bg-hover);
+}
+
+.theme-switcher__summary {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--button-border);
+  border-radius: var(--radius-control);
+  background: var(--button-bg);
+  box-shadow: var(--surface-shadow);
+  color: var(--text-strong);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  list-style: none;
+}
+
+.theme-switcher__summary::-webkit-details-marker {
+  display: none;
+}
+
+.theme-switcher__summary::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.theme-switcher__summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-switcher__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.theme-switcher__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: grid;
+  gap: 8px;
+  min-width: 174px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  background: var(--panel-strong);
+  box-shadow: var(--shadow);
 }
 
 .theme-switcher__label {
   color: var(--text);
-  font-size: 0.76rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .theme-switcher__select {
   appearance: none;
-  min-width: 112px;
+  width: 100%;
+  min-width: 136px;
   height: 32px;
   padding: 0 28px 0 9px;
   border: 1px solid var(--button-border);
@@ -95,16 +159,12 @@
     font-size: 0.78rem;
   }
 
-  .theme-switcher__label {
+  .theme-switcher__current {
     position: absolute;
     width: 1px;
     height: 1px;
     overflow: hidden;
     clip: rect(0 0 0 0);
     white-space: nowrap;
-  }
-
-  .theme-switcher__select {
-    min-width: 104px;
   }
 }

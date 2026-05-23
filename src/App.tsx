@@ -15,9 +15,9 @@ type JsonSideState = {
 type Theme = 'productive' | 'calm' | 'console'
 
 const themes: { value: Theme; label: string }[] = [
-  { value: 'productive', label: 'Рабочая' },
-  { value: 'calm', label: 'Спокойная' },
-  { value: 'console', label: 'Консоль' },
+  { value: 'console', label: 'Workbench' },
+  { value: 'productive', label: 'Daylight' },
+  { value: 'calm', label: 'Review' },
 ]
 
 const themeStorageKey = 'json-diff-tool-theme'
@@ -27,15 +27,15 @@ const isTheme = (value: string | null): value is Theme =>
 
 const getInitialTheme = (): Theme => {
   if (typeof window === 'undefined') {
-    return 'productive'
+    return 'console'
   }
 
   try {
     const storedTheme = window.localStorage.getItem(themeStorageKey)
 
-    return isTheme(storedTheme) ? storedTheme : 'productive'
+    return isTheme(storedTheme) ? storedTheme : 'console'
   } catch {
-    return 'productive'
+    return 'console'
   }
 }
 
@@ -121,10 +121,10 @@ function App() {
         }}
       />
 
-      <section className="workspace-panel">
+      <section className="workspace-panel" aria-label="JSON comparison workspace">
         <div className="workspace-panel__viewers">
           <JsonViewer
-            label="Левый JSON"
+            label="Left JSON"
             text={leftText}
             inputVersion={leftJson.version}
             diffStatuses={leftDiffStatuses}
@@ -149,7 +149,7 @@ function App() {
           </Button>
 
           <JsonViewer
-            label="Правый JSON"
+            label="Right JSON"
             text={rightText}
             inputVersion={rightJson.version}
             diffStatuses={rightDiffStatuses}

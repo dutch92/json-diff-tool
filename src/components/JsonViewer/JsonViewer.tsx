@@ -49,6 +49,9 @@ export function JsonViewer({
     fileError?.inputVersion === inputVersion ? fileError.message : null
   const isBlank = text.trim() === ''
   const validationError = !isBlank && parsed.error
+  const statusTone = visibleFileError || validationError ? 'error' : parsed.isValid && !isBlank ? 'valid' : 'empty'
+  const statusLabel =
+    statusTone === 'error' ? 'Invalid' : statusTone === 'valid' ? 'Valid JSON' : 'Waiting'
 
   const handleTextChange = (value: string) => {
     setFileError(null)
@@ -142,15 +145,21 @@ export function JsonViewer({
   return (
     <Panel as="article" variant="soft" className="json-viewer">
       <div className="json-viewer__head">
+        <div className="json-viewer__title-group">
+          <h2 className="json-viewer__title">{label}</h2>
+          <span className={`json-viewer__badge is-${statusTone}`}>
+            {statusLabel}
+          </span>
+        </div>
         <div className="json-viewer__actions">
           <Button
             onClick={() => {
               setMode((currentMode) => (currentMode === 'view' ? 'edit' : 'view'))
             }}
           >
-            {isEditing ? 'Показать дерево' : 'Редактировать'}
+            {isEditing ? 'Tree' : 'Edit'}
           </Button>
-          <FileButton htmlFor={inputId}>Загрузить файл</FileButton>
+          <FileButton htmlFor={inputId}>Upload</FileButton>
           <input
             id={inputId}
             className="json-viewer__file-input"
@@ -159,7 +168,7 @@ export function JsonViewer({
             onChange={handleFileInputChange}
           />
           <Button onClick={onFormat} disabled={!parsed.isValid}>
-            Форматировать
+            Format
           </Button>
         </div>
       </div>
@@ -176,7 +185,8 @@ export function JsonViewer({
         {isEditing ? (
           <textarea
             className="json-viewer__editor"
-            aria-label={`${label}: исходный JSON`}
+            aria-label={`${label}: source JSON`}
+            placeholder={`Paste ${label.toLowerCase()} here`}
             spellCheck={false}
             value={text}
             onChange={(event) => handleTextChange(event.target.value)}
@@ -198,13 +208,13 @@ export function JsonViewer({
 
       <p className="json-viewer__hint">
         {isEditing
-          ? 'Вставьте JSON вручную или перетащите .json файл в эту область'
-          : 'Сфокусируйте область и вставьте JSON или перетащите .json файл'}
+          ? 'Paste JSON or drop a .json file into this pane'
+          : 'Focus the pane to paste JSON, or drop a .json file'}
       </p>
 
       {isBlank && !visibleFileError ? null : (
         <p className={`json-viewer__status ${validationError || visibleFileError ? 'is-error' : 'is-ok'}`}>
-          {visibleFileError ?? (validationError ? formatJsonParseError(validationError) : 'JSON валиден')}
+          {visibleFileError ?? (validationError ? formatJsonParseError(validationError) : 'JSON is valid')}
         </p>
       )}
     </Panel>

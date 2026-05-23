@@ -1,18 +1,14 @@
 .app-shell {
   display: grid;
-  gap: 18px;
+  gap: 14px;
   align-content: start;
   min-height: 100vh;
-  padding: 24px;
+  padding: 18px;
   color: var(--text);
 }
 
 .workspace-panel {
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-panel);
-  background: var(--panel);
-  box-shadow: var(--shadow);
+  padding: 0;
 }
 
 .workspace-panel__viewers {
@@ -27,9 +23,9 @@
   position: relative;
   z-index: 2;
   align-self: start;
-  width: 36px;
-  height: 36px;
-  margin: 78px -11px 0;
+  width: 34px;
+  height: 34px;
+  margin: 72px -10px 0;
   padding: 0;
   border-radius: 999px;
   box-shadow: var(--surface-shadow);

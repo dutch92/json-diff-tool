@@ -26,11 +26,13 @@ type JsonNodeProps = {
   lineNumbers: LineNumbersByPath
   diffStatuses: Map<string, DiffKind>
   activePath?: string
-  collapsedPaths: Set<string>
-  expandedPaths: Set<string>
+  collapsedPaths: CollapsedPaths
+  activeAncestorPaths: Set<string>
   onChangeValue: (path: string, value: JsonValue) => void
   onTogglePath: (path: string) => void
 }
+
+type CollapsedPaths = Map<string, string | null>
 
 type JsonNodeLineNumbers = {
   opening: number
@@ -172,22 +174,60 @@ function getContainerEntries(value: JsonValue) {
   return []
 }
 
+function isPathCollapsed(
+  path: string,
+  collapsedPaths: CollapsedPaths,
+  activeAncestorPaths: Set<string>,
+  activePath: string | undefined,
+) {
+  if (!collapsedPaths.has(path)) {
+    return false
+  }
+
+  const collapsedAtActivePath = collapsedPaths.get(path)
+
+  return !activeAncestorPaths.has(path) || collapsedAtActivePath === (activePath ?? null)
+}
+
+function countJsonTreeLines(value: JsonValue): number {
+  const isArray = Array.isArray(value)
+  const isObject = typeof value === 'object' && value !== null && !isArray
+  const isContainer = isArray || isObject
+
+  if (!isContainer) {
+    return 1
+  }
+
+  return getContainerEntries(value).reduce(
+    (lineCount, [, childValue]) => lineCount + countJsonTreeLines(childValue),
+    2,
+  )
+}
+
 function collectVisibleLineNumbers(
   value: JsonValue,
   path: string,
-  collapsedPaths: Set<string>,
-  expandedPaths: Set<string>,
+  collapsedPaths: CollapsedPaths,
+  activeAncestorPaths: Set<string>,
+  activePath: string | undefined,
   lineNumber: number,
 ): LineNumberResult {
   const isArray = Array.isArray(value)
   const isObject = typeof value === 'object' && value !== null && !isArray
   const isContainer = isArray || isObject
-  const isCollapsed = collapsedPaths.has(path) && !expandedPaths.has(path)
+  const isCollapsed = isPathCollapsed(path, collapsedPaths, activeAncestorPaths, activePath)
 
-  if (!isContainer || isCollapsed) {
+  if (!isContainer) {
     return {
       entries: [[path, { opening: lineNumber, closing: null }]],
       nextLineNumber: lineNumber + 1,
+    }
+  }
+
+  if (isCollapsed) {
+    return {
+      entries: [[path, { opening: lineNumber, closing: null }]],
+      nextLineNumber: lineNumber + countJsonTreeLines(value),
     }
   }
 
@@ -197,7 +237,8 @@ function collectVisibleLineNumbers(
         childValue,
         joinPath(path, key),
         collapsedPaths,
-        expandedPaths,
+        activeAncestorPaths,
+        activePath,
         result.nextLineNumber,
       )
 
@@ -220,10 +261,20 @@ function collectVisibleLineNumbers(
 
 function getVisibleLineNumbers(
   value: JsonValue,
-  collapsedPaths: Set<string>,
-  expandedPaths: Set<string>,
+  collapsedPaths: CollapsedPaths,
+  activeAncestorPaths: Set<string>,
+  activePath: string | undefined,
 ) {
-  return new Map(collectVisibleLineNumbers(value, 'root', collapsedPaths, expandedPaths, 1).entries)
+  return new Map(
+    collectVisibleLineNumbers(
+      value,
+      'root',
+      collapsedPaths,
+      activeAncestorPaths,
+      activePath,
+      1,
+    ).entries,
+  )
 }
 
 function JsonNode({
@@ -235,7 +286,7 @@ function JsonNode({
   diffStatuses,
   activePath,
   collapsedPaths,
-  expandedPaths,
+  activeAncestorPaths,
   onChangeValue,
   onTogglePath,
 }: JsonNodeProps) {
@@ -249,10 +300,13 @@ function JsonNode({
   const isArray = Array.isArray(value)
   const isObject = typeof value === 'object' && value !== null && !isArray
   const isContainer = isArray || isObject
-  const isCollapsed = collapsedPaths.has(path) && !expandedPaths.has(path)
+  const isCollapsed = isPathCollapsed(path, collapsedPaths, activeAncestorPaths, activePath)
   const [draftValue, setDraftValue] = useState('')
   const [editError, setEditError] = useState<string | null>(null)
   const [isEditingValue, setIsEditingValue] = useState(false)
+
+  const nodeLineNumbers = lineNumbers.get(path)
+  const lineNumber = nodeLineNumbers?.opening ?? 0
 
   useEffect(() => {
     if (!isActive || !nodeRef.current) {
@@ -297,9 +351,6 @@ function JsonNode({
     setEditError(null)
     setIsEditingValue(false)
   }
-
-  const nodeLineNumbers = lineNumbers.get(path)
-  const lineNumber = nodeLineNumbers?.opening ?? 0
 
   if (!isContainer) {
     return (
@@ -405,7 +456,7 @@ function JsonNode({
                 diffStatuses={diffStatuses}
                 activePath={activePath}
                 collapsedPaths={collapsedPaths}
-                expandedPaths={expandedPaths}
+                activeAncestorPaths={activeAncestorPaths}
                 onChangeValue={onChangeValue}
                 onTogglePath={onTogglePath}
               />
@@ -426,24 +477,24 @@ function JsonNode({
 }
 
 export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: JsonTreeProps) {
-  const [collapsedPaths, setCollapsedPaths] = useState<Set<string>>(() => new Set())
-  const expandedPaths = useMemo(
-    () => (activePath ? new Set(getAncestorPaths(activePath)) : new Set<string>()),
+  const [collapsedPaths, setCollapsedPaths] = useState<CollapsedPaths>(() => new Map())
+  const activeAncestorPaths = useMemo(
+    () => new Set(activePath ? getAncestorPaths(activePath) : []),
     [activePath],
   )
   const lineNumbers = useMemo(
-    () => getVisibleLineNumbers(value, collapsedPaths, expandedPaths),
-    [value, collapsedPaths, expandedPaths],
+    () => getVisibleLineNumbers(value, collapsedPaths, activeAncestorPaths, activePath),
+    [value, collapsedPaths, activeAncestorPaths, activePath],
   )
 
   const handleTogglePath = (path: string) => {
     setCollapsedPaths((current) => {
-      const next = new Set(current)
+      const next = new Map(current)
 
-      if (next.has(path)) {
+      if (isPathCollapsed(path, current, activeAncestorPaths, activePath)) {
         next.delete(path)
       } else {
-        next.add(path)
+        next.set(path, activePath ?? null)
       }
 
       return next
@@ -460,7 +511,7 @@ export function JsonTree({ value, diffStatuses, activePath, onChangeValue }: Jso
         diffStatuses={diffStatuses}
         activePath={activePath}
         collapsedPaths={collapsedPaths}
-        expandedPaths={expandedPaths}
+        activeAncestorPaths={activeAncestorPaths}
         onChangeValue={onChangeValue}
         onTogglePath={handleTogglePath}
       />

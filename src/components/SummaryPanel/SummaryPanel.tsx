@@ -40,23 +40,31 @@ export function SummaryPanel<ThemeValue extends string>({
         onNextDiff={onNextDiff}
       />
 
-      <label className="theme-switcher">
-        <span className="theme-switcher__label">Тема</span>
-        <select
-          className="theme-switcher__select"
-          value={selectedTheme}
-          onChange={(event) => onSelectTheme(event.target.value as ThemeValue)}
-        >
-          {themes.map((theme) => (
-            <option
-              key={theme.value}
-              value={theme.value}
-            >
-              {theme.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <details className="theme-switcher">
+        <summary className="theme-switcher__summary" aria-label="Open appearance settings">
+          <span className="theme-switcher__dot" aria-hidden="true" />
+          <span className="theme-switcher__current">
+            {themes.find((theme) => theme.value === selectedTheme)?.label}
+          </span>
+        </summary>
+        <div className="theme-switcher__menu">
+          <span className="theme-switcher__label">Appearance</span>
+          <select
+            className="theme-switcher__select"
+            value={selectedTheme}
+            onChange={(event) => onSelectTheme(event.target.value as ThemeValue)}
+          >
+            {themes.map((theme) => (
+              <option
+                key={theme.value}
+                value={theme.value}
+              >
+                {theme.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </details>
     </Panel>
   )
 }
