@@ -1,0 +1,40 @@
+.aligned-diff { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--input-bg); }
+.aligned-diff__head, .aligned-diff__row { display: grid; grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr); }
+.aligned-diff__head { background: var(--panel); border-bottom: 1px solid var(--border); color: var(--text-strong); font-size: 12px; font-weight: 600; }
+.aligned-diff__head > span { padding: 11px 16px; }
+.aligned-diff__head > span:nth-child(2) { padding: 0; border-inline: 1px solid var(--border); }
+.aligned-diff__head small { margin-left: 8px; color: var(--text); font-weight: 400; }
+.aligned-diff__viewport { position: relative; height: calc(100dvh - 208px); min-height: 280px; overflow: auto; scroll-behavior: auto; overflow-anchor: none; }
+.aligned-diff__viewport:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.aligned-diff__lines { padding-block: 8px 48px; min-width: 640px; }
+.aligned-diff__row { min-height: 24px; color: var(--text-strong); font: 13px/24px var(--mono); }
+.aligned-diff__cell { display: flex; min-width: 0; overflow-wrap: anywhere; }
+.aligned-diff__cell::-webkit-scrollbar { display: none; }
+.aligned-diff__code { display: block; flex: 1; margin: 0; padding-right: 18px; font: inherit; white-space: pre-wrap; }
+.aligned-diff__code .editor-line { margin: 0; padding: 0; border: 0; min-height: 24px; white-space: pre-wrap; }
+.aligned-diff__number { position: sticky; left: 0; flex: 0 0 48px; padding-right: 12px; margin-right: 12px; color: var(--text); background: var(--panel-soft); text-align: right; user-select: none; font-size: 11px; }
+.aligned-diff__gutter { display: flex; justify-content: center; background: var(--panel-soft); border-inline: 1px solid var(--border); user-select: none; }
+.aligned-diff__gutter button { width: 26px; padding: 0; border: 0; border-radius: 2px; background: transparent; color: var(--text-strong); font: inherit; cursor: pointer; }
+.aligned-diff__gutter button:hover { background: var(--accent-soft); }
+.aligned-diff__gutter button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.aligned-diff__row.is-changed .aligned-diff__cell { background: var(--warning-soft); }
+.aligned-diff__row.is-added .aligned-diff__cell:not(.is-blank) { background: var(--success-soft); }
+.aligned-diff__row.is-removed .aligned-diff__cell:not(.is-blank) { background: var(--danger-soft); }
+.aligned-diff__row .is-blank { background: repeating-linear-gradient(-45deg, transparent, transparent 3px, var(--panel-strong) 3px, var(--panel-strong) 4px); }
+.aligned-diff__row.is-active { outline: 1px solid var(--accent); outline-offset: -1px; }
+.aligned-diff__code mark { color: inherit; background: color-mix(in oklch, var(--warning) 28%, transparent); border-radius: 2px; }
+.aligned-diff__fold { display: block; width: 100%; border: 0; border-block: 1px solid var(--border); padding: 5px 12px; background: var(--panel-soft); color: var(--text); font: 11px/20px var(--mono); cursor: pointer; }
+.aligned-diff__fold:hover { color: var(--accent); background: var(--accent-soft); }
+.aligned-diff__fold:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.aligned-diff__footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 16px; padding: 8px 12px; border-top: 1px solid var(--border); background: var(--panel); font-size: 11px; }
+.aligned-diff.is-unified .aligned-diff__head { display: flex; justify-content: space-between; }
+.aligned-diff.is-unified .aligned-diff__head > span { border: 0; padding: 11px 16px; }
+.aligned-diff.is-unified .aligned-diff__lines { min-width: 0; }
+.aligned-diff.is-unified .aligned-diff__row { display: block; }
+.aligned-diff__unified-line { display: flex; }
+.aligned-diff__unified-line .aligned-diff__cell { flex: 1; }
+.aligned-diff__sign { flex: 0 0 22px; text-align: center; color: var(--text); user-select: none; }
+.aligned-diff.is-unified .is-changed .aligned-diff__unified-line:first-child { background: var(--danger-soft); }
+.aligned-diff.is-unified .is-changed .aligned-diff__unified-line:last-child { background: var(--success-soft); }
+.aligned-diff.is-unified .is-changed .aligned-diff__cell { background: transparent; }
+@media (max-width: 720px) { .aligned-diff__viewport { height: calc(100dvh - 280px); } .aligned-diff__head small { display: none; } .aligned-diff__footer > span:last-child { display: none; } }

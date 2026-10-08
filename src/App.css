@@ -56,3 +56,20 @@
     transform: rotate(90deg);
   }
 }
+
+.comparison-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; min-height: 36px; font-size: 12px; }
+.comparison-toolbar__modes { display: inline-flex; border: 1px solid var(--border); border-radius: 5px; padding: 2px; background: var(--input-bg); }
+.comparison-toolbar button, .comparison-toolbar select { min-height: 30px; padding: 4px 12px; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--text); font: inherit; cursor: pointer; }
+.comparison-toolbar button[aria-pressed='true'] { background: var(--accent-soft); color: var(--accent); }
+.comparison-toolbar button:hover:not(:disabled) { background: var(--button-bg-hover); }
+.comparison-toolbar button:disabled { opacity: .45; cursor: not-allowed; }
+.comparison-toolbar button:focus-visible, .comparison-toolbar select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.comparison-toolbar select { border-color: var(--border); background: var(--panel); color: var(--text-strong); }
+.comparison-toolbar__checkbox { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.comparison-toolbar input { accent-color: var(--accent); }
+.comparison-toolbar__legend { margin-left: auto; display: flex; gap: 14px; font-size: 11px; }
+.comparison-toolbar__legend .is-added { color: var(--success); }
+.comparison-toolbar__legend .is-removed { color: var(--danger); }
+.comparison-toolbar__legend .is-changed { color: var(--warning); }
+@media (min-width: 981px) { #root { width: 100%; } .app-shell { padding: 12px; gap: 10px; } }
+@media (max-width: 720px) { .comparison-toolbar__legend { display: none; } .comparison-toolbar__hint { flex-basis: 100%; } }

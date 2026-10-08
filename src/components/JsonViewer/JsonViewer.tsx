@@ -16,6 +16,7 @@ import { JsonTree } from './JsonTree'
 import './JsonViewer.css'
 
 type JsonViewerProps = {
+  suspended?: boolean
   label: string
   text: string
   inputVersion: number
@@ -28,6 +29,7 @@ type JsonViewerProps = {
 }
 
 export function JsonViewer({
+  suspended = false,
   label,
   text,
   inputVersion,
@@ -182,7 +184,7 @@ export function JsonViewer({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {isEditing ? (
+        {suspended ? null : isEditing ? (
           <textarea
             className="json-viewer__editor"
             aria-label={`${label}: source JSON`}

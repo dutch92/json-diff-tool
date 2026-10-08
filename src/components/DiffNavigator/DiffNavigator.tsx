@@ -25,6 +25,8 @@ export function DiffNavigator({
           className="diff-navigator__button"
           type="button"
           aria-label="Предыдущее отличие"
+          title="Previous difference (Shift+F7)"
+          aria-keyshortcuts="Shift+F7"
           onClick={onPreviousDiff}
           disabled={!canNavigate}
         >
@@ -36,6 +38,8 @@ export function DiffNavigator({
           className="diff-navigator__button"
           type="button"
           aria-label="Следующее отличие"
+          title="Next difference (F7)"
+          aria-keyshortcuts="F7"
           onClick={onNextDiff}
           disabled={!canNavigate}
         >
